@@ -1,0 +1,26 @@
+#!/bin/bash
+ 
+ 
+for var in "$@"
+do
+
+     echo "Kodesjekk resultat for ${var}" >> res.txt 2>&1
+     echo "&&&&&&&&&&&&&" >> res.txt 2>&1
+     echo "Checking with gcc -Wall -pthread -o filename.out ${var}" >> res.txt
+     echo "---" >> res.txt
+     gcc -Wall -pthread -o ${var}.out ${var} >> res.txt 2>&1
+     echo "---" >> res.txt
+     echo 'Checking Clang-Tidy Errors:' >> res.txt 2>&1
+     echo "---" >> res.txt
+     clang-tidy-5.0 -checks='*' $var -- -std=c11 >> res.txt   2>&1
+     echo "---" >> res.txt
+     echo 'Checking Valgrind leak check' >> res.txt 2>&1
+     echo "---" >> res.txt
+     valgrind --leak-check=yes ./${var}.out 2 >> res.txt 2>&1
+     echo "---" >> res.txt
+     echo "Checkin Valgrind with helgrind check" >> res.txt
+     echo "---" >> res.txt
+     valgrind --tool=helgrind  ./${var}.out 2  >> res.txt 2>&1
+     echo "---" >> res.txt
+   
+done
